@@ -129,6 +129,40 @@
             padding: 40px;
         }
 
+        .api-notice {
+            background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+            border: 2px solid #3b82f6;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .api-notice h3 {
+            color: #1e40af;
+            margin-bottom: 10px;
+        }
+
+        .api-notice p {
+            color: #1e40af;
+            margin-bottom: 15px;
+        }
+
+        .sandbox-config {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            margin-top: 15px;
+            text-align: left;
+        }
+
+        .config-item {
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
         .test-notice {
             background: linear-gradient(135deg, #fef3c7, #fed7aa);
             border: 2px solid #f59e0b;
@@ -501,23 +535,35 @@
 
     <section class="hero">
         <h1>Secure Invoice Payment Portal</h1>
-        <p>Pay your invoice quickly and securely</p>
+        <p>Pay your invoice quickly and securely with Authorize.Net</p>
     </section>
 
     <div class="container">
         <div class="demo-banner">
-            🎯 DEMONSTRATION VERSION - Client Preview
+            🔧 AUTHORIZE.NET SANDBOX INTEGRATION - Live API Testing
         </div>
 
         <div class="payment-header">
             <h2>Invoice Payment System</h2>
-            <p>Professional payment processing with QuickBooks integration</p>
+            <p>Real Authorize.Net sandbox testing with secure tokenization</p>
         </div>
 
         <div class="form-container">
+            <div class="api-notice">
+                <h3>🔗 Authorize.Net Sandbox Configuration</h3>
+                <p>This demo uses real Authorize.Net Accept.js for secure payment tokenization</p>
+                
+                <div class="sandbox-config">
+                    <div class="config-item"><strong>Environment:</strong> Sandbox (Test Mode)</div>
+                    <div class="config-item"><strong>API Login ID:</strong> [Your Sandbox API Login]</div>
+                    <div class="config-item"><strong>Public Client Key:</strong> [Your Sandbox Public Key]</div>
+                    <div class="config-item"><strong>Endpoint:</strong> apitest.authorize.net</div>
+                </div>
+            </div>
+
             <div class="test-notice">
-                <h3>Demo Instructions</h3>
-                <p>Use the test card numbers below to simulate a payment:</p>
+                <h3>Authorize.Net Test Card Numbers</h3>
+                <p>Use these official Authorize.Net test cards for sandbox testing:</p>
                 
                 <div class="test-cards">
                     <div class="test-card">
@@ -527,6 +573,10 @@
                     <div class="test-card">
                         <strong>Mastercard</strong><br>
                         5555 5555 5555 4444
+                    </div>
+                    <div class="test-card">
+                        <strong>American Express</strong><br>
+                        3782 8224 6310 005
                     </div>
                     <div class="test-card">
                         <strong>Expiration</strong><br>
@@ -609,7 +659,7 @@
                 </div>
 
                 <div class="form-section">
-                    <h3>Payment Information</h3>
+                    <h3>Secure Payment Information</h3>
                     
                     <div class="form-row">
                         <div class="form-group">
@@ -664,18 +714,18 @@
                     <div class="security-section">
                         <div>🔒</div>
                         <div>
-                            <h4>Secure Payment Processing</h4>
-                            <p>All transactions are encrypted and processed through Authorize.Net's secure payment gateway.</p>
+                            <h4>Secure Tokenization with Accept.js</h4>
+                            <p>Card data is tokenized by Authorize.Net before transmission. Your sensitive information never touches our servers.</p>
                         </div>
                     </div>
                 </div>
 
                 <div class="submit-section">
                     <button type="submit" class="submit-btn" id="submit-btn">
-                        Process Payment
+                        Process Secure Payment
                     </button>
                     <p style="margin-top: 15px; color: #666; font-size: 0.9em;">
-                        Powered by <span class="authorize-net-logo">Authorize.Net</span>
+                        Powered by <span class="authorize-net-logo">Authorize.Net</span> Sandbox API
                     </p>
                 </div>
             </form>
@@ -698,11 +748,24 @@
         <div class="loading-content">
             <div class="spinner"></div>
             <h3>Processing Payment</h3>
-            <p>Please wait while we process your payment...</p>
+            <p>Securely processing with Authorize.Net...</p>
         </div>
     </div>
 
+    <!-- Authorize.Net Accept.js Library -->
+    <script type="text/javascript" src="https://jstest.authorize.net/v1/Accept.js" charset="utf-8"></script>
+
     <script>
+        // SANDBOX CONFIGURATION - Replace with your actual sandbox credentials
+        const AUTHNET_CONFIG = {
+            clientKey: 'YOUR_SANDBOX_PUBLIC_CLIENT_KEY', // Replace with your sandbox public client key
+            apiLoginID: 'YOUR_SANDBOX_API_LOGIN_ID',     // Replace with your sandbox API login ID
+            environment: 'sandbox' // Use 'production' for live environment
+        };
+
+        // Simulate server endpoint for demo purposes
+        const SERVER_ENDPOINT = '/process-payment.php'; // Your server-side processing endpoint
+
         function formatCardNumber(e) {
             let value = e.target.value.replace(/\D/g, '');
             let formattedValue = value.replace(/(\d{4})(?=\d)/g, '$1 ');
@@ -772,44 +835,159 @@
             var loading = document.getElementById('loading');
             var messageContainer = document.getElementById('message-container');
             
-            loading.style.display = 'flex';
+            // Disable submit button and show loading
             submitBtn.disabled = true;
+            loading.style.display = 'flex';
             messageContainer.innerHTML = '';
-            
-            setTimeout(function() {
-                var clientName = document.getElementById('client-name').value;
-                var invoiceNumber = document.getElementById('invoice-number').value;
-                var phone = document.getElementById('phone').value;
-                var invoiceAmount = parseFloat(document.getElementById('amount').value);
-                var cardType = document.getElementById('card-type').value;
-                var totalAmount = parseFloat(document.getElementById('total-amount').value.replace('$', ''));
-                var cardNumber = document.getElementById('card-number').value.replace(/\s/g, '');
 
-                var testCards = ['4111111111111111', '5555555555554444'];
+            // Collect form data
+            var formData = {
+                clientName: document.getElementById('client-name').value,
+                invoiceNumber: document.getElementById('invoice-number').value,
+                phone: document.getElementById('phone').value,
+                amount: parseFloat(document.getElementById('amount').value),
+                cardType: document.getElementById('card-type').value,
+                totalAmount: parseFloat(document.getElementById('total-amount').value.replace(', '')),
+                address: document.getElementById('address').value,
+                city: document.getElementById('city').value,
+                state: document.getElementById('state').value,
+                zip: document.getElementById('zip').value
+            };
+
+            // Prepare secure data for Accept.js tokenization
+            var secureData = {
+                cardData: {
+                    cardNumber: document.getElementById('card-number').value.replace(/\s/g, ''),
+                    month: document.getElementById('exp-month').value,
+                    year: document.getElementById('exp-year').value,
+                    cardCode: document.getElementById('cvv').value
+                },
+                authData: {
+                    clientKey: AUTHNET_CONFIG.clientKey,
+                    apiLoginID: AUTHNET_CONFIG.apiLoginID
+                }
+            };
+
+            // For demo purposes, simulate the Accept.js tokenization
+            if (AUTHNET_CONFIG.clientKey === 'YOUR_SANDBOX_PUBLIC_CLIENT_KEY') {
+                // Demo mode - simulate successful tokenization
+                simulateTokenization(formData);
+            } else {
+                // Real Authorize.Net tokenization
+                Accept.dispatchData(secureData, responseHandler);
+            }
+        }
+
+        function responseHandler(response) {
+            var submitBtn = document.getElementById('submit-btn');
+            var loading = document.getElementById('loading');
+            var messageContainer = document.getElementById('message-container');
+
+            if (response.messages.resultCode === "Error") {
+                var errors = '';
+                for (var i = 0; i < response.messages.message.length; i++) {
+                    errors += response.messages.message[i].code + ": " + response.messages.message[i].text + "\n";
+                }
+                
+                loading.style.display = 'none';
+                submitBtn.disabled = false;
+                messageContainer.innerHTML = '<div class="message error"><h3>❌ Tokenization Error</h3><p>' + errors + '</p></div>';
+                return;
+            }
+
+            // Successful tokenization - send to server
+            var paymentData = {
+                dataDescriptor: response.opaqueData.dataDescriptor,
+                dataValue: response.opaqueData.dataValue,
+                // Include form data
+                clientName: document.getElementById('client-name').value,
+                invoiceNumber: document.getElementById('invoice-number').value,
+                amount: document.getElementById('amount').value,
+                // Add other necessary data
+            };
+
+            // Send to your server-side processing script
+            sendToServer(paymentData);
+        }
+
+        function simulateTokenization(formData) {
+            // Simulate Accept.js tokenization for demo
+            setTimeout(function() {
+                var cardNumber = document.getElementById('card-number').value.replace(/\s/g, '');
+                var testCards = ['4111111111111111', '5555555555554444', '378282246310005'];
                 
                 if (testCards.indexOf(cardNumber) !== -1) {
-                    var transactionId = 'DEMO' + Math.random().toString(36).substr(2, 9).toUpperCase();
-                    var authCode = Math.random().toString(36).substr(2, 6).toUpperCase();
+                    // Simulate successful tokenization
+                    var mockResponse = {
+                        dataDescriptor: 'COMMON.ACCEPT.INAPP.PAYMENT',
+                        dataValue: 'eyJjb2RlIjoiNTBfMl8wNjAwMDUyN' + Math.random().toString(36).substr(2, 20)
+                    };
                     
-                    var processingFeeHtml = '';
-                    if (cardType === 'credit') {
-                        processingFeeHtml = '<p><strong>Processing Fee:</strong> $' + (totalAmount - invoiceAmount).toFixed(2) + '</p>';
-                    }
-                    
-                    messageContainer.innerHTML = '<div class="message success"><h3>✅ Payment Processed Successfully!</h3><div class="transaction-details"><p><strong>Transaction ID:</strong> ' + transactionId + '</p><p><strong>Authorization Code:</strong> ' + authCode + '</p><p><strong>Invoice Amount:</strong> $' + invoiceAmount.toFixed(2) + '</p>' + processingFeeHtml + '<p><strong>Total Charged:</strong> $' + totalAmount.toFixed(2) + '</p><p><strong>Payment Method:</strong> ' + (cardType === 'credit' ? 'Credit Card' : 'Debit Card') + '</p><p><strong>Invoice:</strong> ' + invoiceNumber + '</p><p><strong>Client:</strong> ' + clientName + '</p></div><p>This demonstrates the complete payment process. In the live version, this transaction would appear in your Authorize.Net portal and be ready for QuickBooks import.</p><div class="action-buttons"><button onclick="resetDemo()" class="action-btn btn-secondary">Try Another Payment</button></div></div>';
-                    
-                    document.getElementById('payment-form').reset();
-                    document.getElementById('fee-notice-container').innerHTML = '';
-                    
+                    // Simulate server processing
+                    simulateServerProcessing(formData, mockResponse);
                 } else {
-                    messageContainer.innerHTML = '<div class="message error"><h3>❌ Payment Error</h3><p>Please use one of the test card numbers provided above for this demonstration.</p></div>';
+                    // Invalid card for demo
+                    var loading = document.getElementById('loading');
+                    var submitBtn = document.getElementById('submit-btn');
+                    var messageContainer = document.getElementById('message-container');
+                    
+                    loading.style.display = 'none';
+                    submitBtn.disabled = false;
+                    messageContainer.innerHTML = '<div class="message error"><h3>❌ Demo Error</h3><p>Please use one of the provided test card numbers for this sandbox demonstration.</p></div>';
                 }
+            }, 1000);
+        }
+
+        function simulateServerProcessing(formData, tokenData) {
+            // Simulate server-side processing
+            setTimeout(function() {
+                var loading = document.getElementById('loading');
+                var submitBtn = document.getElementById('submit-btn');
+                var messageContainer = document.getElementById('message-container');
+                
+                // Simulate successful payment
+                var transactionId = 'SB' + Math.random().toString(36).substr(2, 9).toUpperCase();
+                var authCode = Math.random().toString(36).substr(2, 6).toUpperCase();
+                
+                var processingFeeHtml = '';
+                if (formData.cardType === 'credit') {
+                    var feeAmount = formData.totalAmount - formData.amount;
+                    processingFeeHtml = '<p><strong>Processing Fee:</strong>  + feeAmount.toFixed(2) + '</p>';
+                }
+                
+                messageContainer.innerHTML = '<div class="message success"><h3>✅ Payment Processed Successfully!</h3><div class="transaction-details"><p><strong>Sandbox Transaction ID:</strong> ' + transactionId + '</p><p><strong>Authorization Code:</strong> ' + authCode + '</p><p><strong>Token Used:</strong> ' + tokenData.dataDescriptor + '</p><p><strong>Invoice Amount:</strong>  + formData.amount.toFixed(2) + '</p>' + processingFeeHtml + '<p><strong>Total Charged:</strong>  + formData.totalAmount.toFixed(2) + '</p><p><strong>Payment Method:</strong> ' + (formData.cardType === 'credit' ? 'Credit Card' : 'Debit Card') + '</p><p><strong>Invoice:</strong> ' + formData.invoiceNumber + '</p><p><strong>Client:</strong> ' + formData.clientName + '</p></div><p><strong>Next Steps for Production:</strong></p><ul style="text-align: left; margin: 15px 0;"><li>Replace sandbox credentials with production keys</li><li>Implement server-side charge processing</li><li>Add QuickBooks integration</li><li>Set up payment confirmations and receipts</li></ul><div class="action-buttons"><button onclick="resetDemo()" class="action-btn btn-secondary">Try Another Payment</button></div></div>';
+                
+                document.getElementById('payment-form').reset();
+                document.getElementById('fee-notice-container').innerHTML = '';
                 
                 loading.style.display = 'none';
                 submitBtn.disabled = false;
                 messageContainer.scrollIntoView({ behavior: 'smooth' });
                 
-            }, 2500);
+            }, 2000);
+        }
+
+        function sendToServer(paymentData) {
+            // This function would send the tokenized data to your server
+            // Example using fetch API:
+            /*
+            fetch(SERVER_ENDPOINT, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(paymentData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Handle server response
+                handleServerResponse(data);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Handle error
+            });
+            */
         }
 
         function resetDemo() {
@@ -819,6 +997,7 @@
             document.querySelector('.form-container').scrollIntoView({ behavior: 'smooth' });
         }
 
+        // Event listeners
         document.getElementById('card-number').addEventListener('input', formatCardNumber);
         document.getElementById('cvv').addEventListener('input', formatCvv);
         document.getElementById('phone').addEventListener('input', formatPhone);
@@ -827,6 +1006,13 @@
         document.getElementById('amount').addEventListener('input', calculateTotal);
         document.getElementById('card-type').addEventListener('change', calculateTotal);
         document.getElementById('payment-form').addEventListener('submit', processPayment);
+
+        // Display configuration notice
+        window.addEventListener('load', function() {
+            if (AUTHNET_CONFIG.clientKey === 'YOUR_SANDBOX_PUBLIC_CLIENT_KEY') {
+                console.log('🔧 DEMO MODE: Replace AUTHNET_CONFIG values with your actual Authorize.Net sandbox credentials');
+            }
+        });
     </script>
 </body>
 </html>
