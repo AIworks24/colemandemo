@@ -19,7 +19,7 @@
         }
 
         .header {
-            background: white;
+            background: #dd3333;
             padding: 15px 0;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             position: sticky;
@@ -37,14 +37,14 @@
         }
 
         .logo-section h1 {
-            color: #333;
+            color: white;
             font-size: 1.8em;
             font-weight: bold;
             margin-bottom: 2px;
         }
 
         .logo-section p {
-            color: #666;
+            color: rgba(255,255,255,0.9);
             font-size: 0.9em;
             font-style: italic;
         }
@@ -56,7 +56,7 @@
         }
 
         .nav-menu a {
-            color: #333;
+            color: white;
             text-decoration: none;
             font-weight: 500;
             font-size: 0.95em;
@@ -65,7 +65,7 @@
         }
 
         .nav-menu a:hover {
-            color: #dd3333;
+            color: rgba(255,255,255,0.8);
         }
 
         .hero {
@@ -703,90 +703,59 @@
     </div>
 
     <script>
-        document.getElementById('card-number').addEventListener('input', function(e) {
+        function formatCardNumber(e) {
             let value = e.target.value.replace(/\D/g, '');
             let formattedValue = value.replace(/(\d{4})(?=\d)/g, '$1 ');
             e.target.value = formattedValue;
-        });
+        }
 
-        document.getElementById('cvv').addEventListener('input', function(e) {
+        function formatCvv(e) {
             e.target.value = e.target.value.replace(/\D/g, '');
-        });
+        }
 
-        document.getElementById('phone').addEventListener('input', function(e) {
+        function formatPhone(e) {
             let value = e.target.value.replace(/\D/g, '');
             let formattedValue = '';
             
             if (value.length >= 6) {
-                formattedValue = `(${value.substring(0, 3)}) ${value.substring(3, 6)}-${value.substring(6, 10)}`;
+                formattedValue = '(' + value.substring(0, 3) + ') ' + value.substring(3, 6) + '-' + value.substring(6, 10);
             } else if (value.length >= 3) {
-                formattedValue = `(${value.substring(0, 3)}) ${value.substring(3)}`;
+                formattedValue = '(' + value.substring(0, 3) + ') ' + value.substring(3);
             } else {
                 formattedValue = value;
             }
             
             e.target.value = formattedValue;
-        });
+        }
 
-        document.getElementById('state').addEventListener('input', function(e) {
+        function formatState(e) {
             e.target.value = e.target.value.toUpperCase();
-        });
+        }
 
-        document.getElementById('zip').addEventListener('input', function(e) {
+        function formatZip(e) {
             e.target.value = e.target.value.replace(/\D/g, '');
-        });
-
-        document.getElementById('amount').addEventListener('input', calculateTotal);
-        document.getElementById('card-type').addEventListener('change', calculateTotal);
+        }
 
         function calculateTotal() {
-            const invoiceAmount = parseFloat(document.getElementById('amount').value) || 0;
-            const cardType = document.getElementById('card-type').value;
-            const totalAmountField = document.getElementById('total-amount');
-            const feeNoticeContainer = document.getElementById('fee-notice-container');
+            var invoiceAmount = parseFloat(document.getElementById('amount').value) || 0;
+            var cardType = document.getElementById('card-type').value;
+            var totalAmountField = document.getElementById('total-amount');
+            var feeNoticeContainer = document.getElementById('fee-notice-container');
             
             if (invoiceAmount > 0 && cardType) {
-                let totalAmount = invoiceAmount;
-                let feeAmount = 0;
-                let feeNoticeHTML = '';
+                var totalAmount = invoiceAmount;
+                var feeAmount = 0;
+                var feeNoticeHTML = '';
                 
                 if (cardType === 'credit') {
                     feeAmount = invoiceAmount * 0.035;
                     totalAmount = invoiceAmount + feeAmount;
-                    feeNoticeHTML = `
-                        <div class="fee-notice">
-                            <strong>Credit Card Processing Fee:</strong> A 3.5% processing fee applies to credit card payments.
-                        </div>
-                        <div class="amount-breakdown">
-                            <div class="line-item">
-                                <span>Invoice Amount:</span>
-                                <span>$${invoiceAmount.toFixed(2)}</span>
-                            </div>
-                            <div class="line-item">
-                                <span>Processing Fee (3.5%):</span>
-                                <span>$${feeAmount.toFixed(2)}</span>
-                            </div>
-                            <div class="line-item total-line">
-                                <span>Total Payment Amount:</span>
-                                <span>$${totalAmount.toFixed(2)}</span>
-                            </div>
-                        </div>
-                    `;
+                    feeNoticeHTML = '<div class="fee-notice"><strong>Credit Card Processing Fee:</strong> A 3.5% processing fee applies to credit card payments.</div><div class="amount-breakdown"><div class="line-item"><span>Invoice Amount:</span><span>$' + invoiceAmount.toFixed(2) + '</span></div><div class="line-item"><span>Processing Fee (3.5%):</span><span>$' + feeAmount.toFixed(2) + '</span></div><div class="line-item total-line"><span>Total Payment Amount:</span><span>$' + totalAmount.toFixed(2) + '</span></div></div>';
                 } else if (cardType === 'debit') {
-                    feeNoticeHTML = `
-                        <div class="fee-notice debit">
-                            <strong>Debit Card Payment:</strong> No processing fees apply to debit card payments.
-                        </div>
-                        <div class="amount-breakdown">
-                            <div class="line-item total-line">
-                                <span>Total Payment Amount:</span>
-                                <span>$${totalAmount.toFixed(2)}</span>
-                            </div>
-                        </div>
-                    `;
+                    feeNoticeHTML = '<div class="fee-notice debit"><strong>Debit Card Payment:</strong> No processing fees apply to debit card payments.</div><div class="amount-breakdown"><div class="line-item total-line"><span>Total Payment Amount:</span><span>$' + totalAmount.toFixed(2) + '</span></div></div>';
                 }
                 
-                totalAmountField.value = `$${totalAmount.toFixed(2)}`;
+                totalAmountField.value = '$' + totalAmount.toFixed(2);
                 totalAmountField.classList.add('readonly-field');
                 feeNoticeContainer.innerHTML = feeNoticeHTML;
             } else {
@@ -796,69 +765,44 @@
             }
         }
 
-        document.getElementById('payment-form').addEventListener('submit', function(e) {
+        function processPayment(e) {
             e.preventDefault();
             
-            const submitBtn = document.getElementById('submit-btn');
-            const loading = document.getElementById('loading');
-            const messageContainer = document.getElementById('message-container');
+            var submitBtn = document.getElementById('submit-btn');
+            var loading = document.getElementById('loading');
+            var messageContainer = document.getElementById('message-container');
             
             loading.style.display = 'flex';
             submitBtn.disabled = true;
             messageContainer.innerHTML = '';
             
-            setTimeout(() => {
-                const formData = {
-                    clientName: document.getElementById('client-name').value,
-                    invoiceNumber: document.getElementById('invoice-number').value,
-                    phone: document.getElementById('phone').value,
-                    invoiceAmount: parseFloat(document.getElementById('amount').value),
-                    cardType: document.getElementById('card-type').value,
-                    totalAmount: parseFloat(document.getElementById('total-amount').value.replace('$', '')),
-                    cardNumber: document.getElementById('card-number').value.replace(/\s/g, '')
-                };
+            setTimeout(function() {
+                var clientName = document.getElementById('client-name').value;
+                var invoiceNumber = document.getElementById('invoice-number').value;
+                var phone = document.getElementById('phone').value;
+                var invoiceAmount = parseFloat(document.getElementById('amount').value);
+                var cardType = document.getElementById('card-type').value;
+                var totalAmount = parseFloat(document.getElementById('total-amount').value.replace('$', ''));
+                var cardNumber = document.getElementById('card-number').value.replace(/\s/g, '');
 
-                const testCards = ['4111111111111111', '5555555555554444'];
+                var testCards = ['4111111111111111', '5555555555554444'];
                 
-                if (testCards.includes(formData.cardNumber)) {
-                    const transactionId = 'DEMO' + Math.random().toString(36).substr(2, 9).toUpperCase();
-                    const authCode = Math.random().toString(36).substr(2, 6).toUpperCase();
+                if (testCards.indexOf(cardNumber) !== -1) {
+                    var transactionId = 'DEMO' + Math.random().toString(36).substr(2, 9).toUpperCase();
+                    var authCode = Math.random().toString(36).substr(2, 6).toUpperCase();
                     
-                    messageContainer.innerHTML = `
-                        <div class="message success">
-                            <h3>✅ Payment Processed Successfully!</h3>
-                            <div class="transaction-details">
-                                <p><strong>Transaction ID:</strong> ${transactionId}</p>
-                                <p><strong>Authorization Code:</strong> ${authCode}</p>
-                                <p><strong>Invoice Amount:</strong> $${formData.invoiceAmount.toFixed(2)}</p>
-                                ${formData.cardType === 'credit' ? `<p><strong>Processing Fee:</strong> $${(formData.totalAmount - formData.invoiceAmount).toFixed(2)}</p>` : ''}
-                                <p><strong>Total Charged:</strong> $${formData.totalAmount.toFixed(2)}</p>
-                                <p><strong>Payment Method:</strong> ${formData.cardType === 'credit' ? 'Credit Card' : 'Debit Card'}</p>
-                                <p><strong>Invoice:</strong> ${formData.invoiceNumber}</p>
-                                <p><strong>Client:</strong> ${formData.clientName}</p>
-                            </div>
-                            <p>This demonstrates the complete payment process. In the live version, this transaction would appear in your Authorize.Net portal and be ready for QuickBooks import.</p>
-                            <div class="action-buttons">
-                                <button onclick="showQuickBooksDemo()" class="action-btn btn-primary">
-                                    View QuickBooks Integration
-                                </button>
-                                <button onclick="resetDemo()" class="action-btn btn-secondary">
-                                    Try Another Payment
-                                </button>
-                            </div>
-                        </div>
-                    `;
+                    var processingFeeHtml = '';
+                    if (cardType === 'credit') {
+                        processingFeeHtml = '<p><strong>Processing Fee:</strong> $' + (totalAmount - invoiceAmount).toFixed(2) + '</p>';
+                    }
+                    
+                    messageContainer.innerHTML = '<div class="message success"><h3>✅ Payment Processed Successfully!</h3><div class="transaction-details"><p><strong>Transaction ID:</strong> ' + transactionId + '</p><p><strong>Authorization Code:</strong> ' + authCode + '</p><p><strong>Invoice Amount:</strong> $' + invoiceAmount.toFixed(2) + '</p>' + processingFeeHtml + '<p><strong>Total Charged:</strong> $' + totalAmount.toFixed(2) + '</p><p><strong>Payment Method:</strong> ' + (cardType === 'credit' ? 'Credit Card' : 'Debit Card') + '</p><p><strong>Invoice:</strong> ' + invoiceNumber + '</p><p><strong>Client:</strong> ' + clientName + '</p></div><p>This demonstrates the complete payment process. In the live version, this transaction would appear in your Authorize.Net portal and be ready for QuickBooks import.</p><div class="action-buttons"><button onclick="resetDemo()" class="action-btn btn-secondary">Try Another Payment</button></div></div>';
                     
                     document.getElementById('payment-form').reset();
                     document.getElementById('fee-notice-container').innerHTML = '';
                     
                 } else {
-                    messageContainer.innerHTML = `
-                        <div class="message error">
-                            <h3>❌ Payment Error</h3>
-                            <p>Please use one of the test card numbers provided above for this demonstration.</p>
-                        </div>
-                    `;
+                    messageContainer.innerHTML = '<div class="message error"><h3>❌ Payment Error</h3><p>Please use one of the test card numbers provided above for this demonstration.</p></div>';
                 }
                 
                 loading.style.display = 'none';
@@ -866,219 +810,6 @@
                 messageContainer.scrollIntoView({ behavior: 'smooth' });
                 
             }, 2500);
-        });
-
-        function showQuickBooksDemo() {
-            const demoWindow = window.open('', '_blank', 'width=900,height=700');
-            
-            demoWindow.document.write(`
-                <html>
-                <head>
-                    <title>QuickBooks Integration Demo - Donald W. Coleman, Inc.</title>
-                    <style>
-                        body { 
-                            font-family: Arial, sans-serif; 
-                            margin: 20px; 
-                            background: #f8f9fa;
-                            line-height: 1.6;
-                        }
-                        .header { 
-                            background: #dd3333; 
-                            color: white; 
-                            padding: 20px; 
-                            text-align: center; 
-                            margin: -20px -20px 30px;
-                            border-radius: 0 0 10px 10px;
-                        }
-                        .section {
-                            background: white;
-                            padding: 25px;
-                            margin: 20px 0;
-                            border-radius: 10px;
-                            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-                        }
-                        .benefit {
-                            display: flex;
-                            align-items: center;
-                            margin: 15px 0;
-                            padding: 15px;
-                            background: #f0f9ff;
-                            border-left: 4px solid #dd3333;
-                            border-radius: 5px;
-                        }
-                        .benefit strong {
-                            color: #dd3333;
-                            margin-left: 10px;
-                        }
-                        .steps {
-                            counter-reset: step-counter;
-                        }
-                        .step {
-                            counter-increment: step-counter;
-                            background: #fafbfc;
-                            padding: 20px;
-                            margin: 15px 0;
-                            border-left: 4px solid #dd3333;
-                            border-radius: 5px;
-                            position: relative;
-                        }
-                        .step::before {
-                            content: counter(step-counter);
-                            position: absolute;
-                            left: -15px;
-                            top: 15px;
-                            background: #dd3333;
-                            color: white;
-                            width: 30px;
-                            height: 30px;
-                            border-radius: 50%;
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            font-weight: bold;
-                        }
-                        .highlight {
-                            background: #fef3c7;
-                            padding: 2px 6px;
-                            border-radius: 3px;
-                            font-weight: bold;
-                        }
-                        .comparison {
-                            display: grid;
-                            grid-template-columns: 1fr 1fr;
-                            gap: 20px;
-                            margin: 20px 0;
-                        }
-                        .before, .after {
-                            padding: 20px;
-                            border-radius: 8px;
-                        }
-                        .before {
-                            background: #fee2e2;
-                            border-left: 4px solid #ef4444;
-                        }
-                        .after {
-                            background: #d1fae5;
-                            border-left: 4px solid #10b981;
-                        }
-                        .csv-preview {
-                            background: #1f2937;
-                            color: #f9fafb;
-                            padding: 15px;
-                            border-radius: 5px;
-                            font-family: 'Courier New', monospace;
-                            font-size: 0.9em;
-                            overflow-x: auto;
-                            margin: 15px 0;
-                        }
-                        @media (max-width: 768px) {
-                            .comparison { grid-template-columns: 1fr; }
-                        }
-                    </style>
-                </head>
-                <body>
-                    <div class="header">
-                        <h1>QuickBooks Integration Benefits</h1>
-                        <p>How this system transforms your accounting workflow</p>
-                    </div>
-                    
-                    <div class="section">
-                        <h2>🎯 Problem Solved</h2>
-                        <div class="comparison">
-                            <div class="before">
-                                <h3>❌ Your Current System</h3>
-                                <ul>
-                                    <li>Missing invoice numbers</li>
-                                    <li>Incomplete client information</li>
-                                    <li>Manual payment matching</li>
-                                    <li>Time-consuming reconciliation</li>
-                                    <li>Data entry errors</li>
-                                </ul>
-                            </div>
-                            <div class="after">
-                                <h3>✅ New Payment System</h3>
-                                <ul>
-                                    <li>Automatic invoice number capture</li>
-                                    <li>Complete client contact details</li>
-                                    <li>Instant payment matching</li>
-                                    <li>One-click QuickBooks import</li>
-                                    <li>Error-free data transfer</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="section">
-                        <h2>📊 CSV Export Preview</h2>
-                        <p>Here's exactly what gets exported for QuickBooks:</p>
-                        
-                        <div class="csv-preview">Date,Transaction ID,Client Name,Invoice Number,Invoice Amount,Processing Fee,Total Amount,Payment Method,Status
-08/13/2025,DEMO123456789,Richmond Construction LLC,INV-2025-001,1000.00,35.00,1035.00,Credit Card,Completed
-08/13/2025,DEMO987654321,John Smith,INV-2025-002,500.00,0.00,500.00,Debit Card,Completed</div>
-                    </div>
-
-                    <div class="section">
-                        <h2>📋 QuickBooks Import Process</h2>
-                        <div class="steps">
-                            <div class="step">
-                                <h3>Export Payment Data</h3>
-                                <p>Click "Export for QuickBooks" to download a <span class="highlight">CSV file</span> with all payment details.</p>
-                            </div>
-                            
-                            <div class="step">
-                                <h3>Open QuickBooks Desktop</h3>
-                                <p>Go to <strong>File → Utilities → Import → Excel Files</strong></p>
-                            </div>
-                            
-                            <div class="step">
-                                <h3>Select Your CSV File</h3>
-                                <p>Browse and select the downloaded payment file.</p>
-                            </div>
-                            
-                            <div class="step">
-                                <h3>Map the Data Fields</h3>
-                                <p>QuickBooks will automatically match the columns to the correct fields.</p>
-                            </div>
-                            
-                            <div class="step">
-                                <h3>Import Complete</h3>
-                                <p>All payments are now in QuickBooks with <span class="highlight">invoice numbers linked automatically</span>!</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="section">
-                        <h2>💼 Business Benefits</h2>
-                        <div class="benefit">
-                            <div>⏱️</div>
-                            <strong>Time Savings:</strong> Eliminate manual data entry and payment matching
-                        </div>
-                        <div class="benefit">
-                            <div>📈</div>
-                            <strong>Accuracy:</strong> Zero data entry errors with automated import
-                        </div>
-                        <div class="benefit">
-                            <div>🔗</div>
-                            <strong>Integration:</strong> Seamless connection between payments and invoices
-                        </div>
-                        <div class="benefit">
-                            <div>💎</div>
-                            <strong>Professional Image:</strong> Branded payment portal enhances client experience
-                        </div>
-                        <div class="benefit">
-                            <div>💰</div>
-                            <strong>Cost Effective:</strong> Only pay transaction fees - no monthly software costs
-                        </div>
-                    </div>
-
-                    <div class="section" style="text-align: center; background: #f0f9ff; border: 2px solid #dd3333;">
-                        <h2>🚀 Ready to Get Started?</h2>
-                        <p style="font-size: 1.1em; margin: 15px 0;">This demonstration shows exactly how the live system will work for Donald W. Coleman, Inc.</p>
-                        <p><strong>Next Step:</strong> Approve this demo and we'll implement the full WordPress integration with your Authorize.Net account.</p>
-                    </div>
-                </body>
-                </html>
-            `);
         }
 
         function resetDemo() {
@@ -1087,6 +818,15 @@
             document.getElementById('fee-notice-container').innerHTML = '';
             document.querySelector('.form-container').scrollIntoView({ behavior: 'smooth' });
         }
+
+        document.getElementById('card-number').addEventListener('input', formatCardNumber);
+        document.getElementById('cvv').addEventListener('input', formatCvv);
+        document.getElementById('phone').addEventListener('input', formatPhone);
+        document.getElementById('state').addEventListener('input', formatState);
+        document.getElementById('zip').addEventListener('input', formatZip);
+        document.getElementById('amount').addEventListener('input', calculateTotal);
+        document.getElementById('card-type').addEventListener('change', calculateTotal);
+        document.getElementById('payment-form').addEventListener('submit', processPayment);
     </script>
 </body>
 </html>
